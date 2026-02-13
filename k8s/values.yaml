@@ -1,9 +1,9 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/amine7536/backend-1
-  tag: latest
-  pullPolicy: Always
+  repository: ghcr.io/amine7536/akpe-backend-1
+  tag: ""
+  pullPolicy: IfNotPresent
 
 service:
   port: 8080
