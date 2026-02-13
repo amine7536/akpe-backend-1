@@ -48,3 +48,29 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  update-gitops:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    concurrency:
+      group: gitops-update
+      cancel-in-progress: false
+    steps:
+      - name: Checkout gitops repo
+        uses: actions/checkout@v4
+        with:
+          repository: amine7536/akpe-gitops
+          token: ${{ secrets.GITOPS_PAT }}
+
+      - name: Update image tag
+        run: |
+          yq -i '(.spec.source.helm.parameters[] | select(.name == "image.tag")).value = "${{ github.sha }}"' production/backend-1.yaml
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --staged --quiet && exit 0
+          git commit -m "chore(backend-1): update image tag to ${{ github.sha }}"
+          git push
