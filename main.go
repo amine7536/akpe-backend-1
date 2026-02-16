@@ -36,30 +36,11 @@ func main() {
 	}
 	defer db.Close()
 
-	// Init schema
-	initDB()
-
 	http.HandleFunc("/items", handleItems)
 	http.HandleFunc("/health", handleHealth)
 
 	log.Printf("backend-1 listening on :%s", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
-}
-
-func initDB() {
-	schema := `
-	CREATE TABLE IF NOT EXISTS items (
-		id SERIAL PRIMARY KEY,
-		name TEXT NOT NULL
-	);
-	INSERT INTO items (name)
-	SELECT name FROM (VALUES ('alpha'), ('bravo'), ('charlie')) AS v(name)
-	WHERE NOT EXISTS (SELECT 1 FROM items);
-	`
-	if _, err := db.Exec(schema); err != nil {
-		log.Fatalf("Failed to init database: %v", err)
-	}
-	log.Println("Database schema initialized")
 }
 
 func handleItems(w http.ResponseWriter, r *http.Request) {

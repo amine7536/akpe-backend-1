@@ -12,5 +12,11 @@ ingress:
   enabled: true
   host: backend-1.127.0.0.1.nip.io
 
-env:
-  DATABASE_URL: "postgres://backend1:backend1@postgres-postgresql.main.svc.cluster.local:5432/backend1?sslmode=disable"
+postgres:
+  host: postgres-postgresql.postgres.svc.cluster.local
+  port: 5432
+  superuser: postgres
+  superuserPassword: postgres
+
+database:
+  name: backend-1
