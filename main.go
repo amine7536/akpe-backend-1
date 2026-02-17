@@ -39,7 +39,7 @@ func main() {
 	http.HandleFunc("/items", handleItems)
 	http.HandleFunc("/health", handleHealth)
 
-	log.Printf("backend-1 listening on :%s", port)
+	log.Printf("backend-1 (e2e-test) listening on :%s", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
 
