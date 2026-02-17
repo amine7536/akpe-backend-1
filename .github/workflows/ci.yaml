@@ -17,7 +17,7 @@ jobs:
       image_name: ${{ github.repository }}
     secrets: inherit
 
-  update-gitops:
+  deploy-production:
     if: github.event_name == 'push'
     needs: build-and-push
     uses: amine7536/akpe-workflows/.github/workflows/deploy-production.yml@main
@@ -25,7 +25,7 @@ jobs:
       service_name: backend-1
     secrets: inherit
 
-  preview-env:
+  deploy-preview:
     if: github.event_name == 'pull_request'
     needs: build-and-push
     uses: amine7536/akpe-workflows/.github/workflows/deploy-preview.yml@main
