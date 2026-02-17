@@ -2,7 +2,7 @@
 {{- $pgPort := .Values.postgres.port -}}
 {{- $pgSuperuser := .Values.postgres.superuser -}}
 {{- $pgSuperuserPassword := .Values.postgres.superuserPassword -}}
-{{- $dbName := .Values.database.name -}}
+{{- $dbName := .Release.Name -}}
 {{- $dbUser := $dbName -}}
 {{- $dbPassword := $dbName -}}
 {{- $databaseURL := printf "postgres://%s:%s@%s:%v/%s?sslmode=disable" $dbUser $dbPassword $pgHost $pgPort $dbName -}}

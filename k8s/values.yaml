@@ -17,6 +17,3 @@ postgres:
   port: 5432
   superuser: postgres
   superuserPassword: postgres
-
-database:
-  name: backend-1
