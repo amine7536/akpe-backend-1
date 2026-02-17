@@ -20,7 +20,7 @@ jobs:
   update-gitops:
     if: github.event_name == 'push'
     needs: build-and-push
-    uses: amine7536/akpe-workflows/.github/workflows/update-gitops.yml@main
+    uses: amine7536/akpe-workflows/.github/workflows/deploy-production.yml@main
     with:
       service_name: backend-1
     secrets: inherit
@@ -28,7 +28,7 @@ jobs:
   preview-env:
     if: github.event_name == 'pull_request'
     needs: build-and-push
-    uses: amine7536/akpe-workflows/.github/workflows/preview-env.yml@main
+    uses: amine7536/akpe-workflows/.github/workflows/deploy-preview.yml@main
     with:
       service_name: backend-1
     secrets: inherit
