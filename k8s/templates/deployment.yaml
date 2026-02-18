@@ -1,0 +1,89 @@
+{{- $pgHost := .Values.postgres.host -}}
+{{- $pgPort := .Values.postgres.port -}}
+{{- $pgSuperuser := .Values.postgres.superuser -}}
+{{- $pgSuperuserPassword := .Values.postgres.superuserPassword -}}
+{{- $dbName := .Release.Name -}}
+{{- $dbUser := $dbName -}}
+{{- $dbPassword := $dbName -}}
+{{- $databaseURL := printf "postgres://%s:%s@%s:%v/%s?sslmode=disable" $dbUser $dbPassword $pgHost $pgPort $dbName -}}
+{{- $superuserURL := printf "postgres://%s:%s@%s:%v/postgres?sslmode=disable" $pgSuperuser $pgSuperuserPassword $pgHost $pgPort -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    app: {{ .Chart.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      initContainers:
+        - name: pg-setup
+          image: bitnami/postgresql:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PGHOST
+              value: {{ $pgHost | quote }}
+            - name: PGPORT
+              value: {{ $pgPort | quote }}
+            - name: PGUSER
+              value: {{ $pgSuperuser | quote }}
+            - name: PGPASSWORD
+              value: {{ $pgSuperuserPassword | quote }}
+          command:
+            - sh
+            - -ce
+            - |
+              echo "Waiting for PostgreSQL..."
+              until pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER"; do
+                sleep 1
+              done
+
+              echo "Creating user {{ $dbUser }} (if not exists)..."
+              psql -d postgres -tc "SELECT 1 FROM pg_roles WHERE rolname='{{ $dbUser }}'" | grep -q 1 \
+                || psql -d postgres -c "CREATE ROLE \"{{ $dbUser }}\" WITH LOGIN PASSWORD '{{ $dbPassword }}';"
+
+              echo "Creating database {{ $dbName }} (if not exists)..."
+              psql -d postgres -tc "SELECT 1 FROM pg_database WHERE datname='{{ $dbName }}'" | grep -q 1 \
+                || psql -d postgres -c "CREATE DATABASE \"{{ $dbName }}\" OWNER \"{{ $dbUser }}\";"
+
+              echo "pg-setup done."
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - migrate
+            - -path
+            - /migrations
+            - -database
+            - {{ $databaseURL | quote }}
+            - up
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: PORT
+              value: "{{ .Values.service.port }}"
+            - name: DATABASE_URL
+              value: {{ $databaseURL | quote }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
