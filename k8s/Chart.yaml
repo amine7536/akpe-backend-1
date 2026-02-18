@@ -3,3 +3,8 @@ name: backend-1
 description: Backend 1 - Go service with Postgres
 version: 0.1.0
 appVersion: "0.1.0"
+dependencies:
+  - name: akpe-service
+    version: 0.1.0
+    repository: oci://ghcr.io/amine7536/akpe-charts
+    alias: app
