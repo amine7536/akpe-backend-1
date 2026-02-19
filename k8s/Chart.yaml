@@ -5,6 +5,6 @@ version: 0.1.0
 appVersion: "0.1.0"
 dependencies:
   - name: akpe-service
-    version: 0.1.0
+    version: 0.2.0
     repository: oci://ghcr.io/amine7536/akpe-charts
     alias: app
