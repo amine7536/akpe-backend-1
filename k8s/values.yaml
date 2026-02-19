@@ -14,10 +14,7 @@ app:
     host: backend-1.127.0.0.1.nip.io
 
   postgres:
+    enabled: true
     host: postgres-postgresql.postgres.svc.cluster.local
     port: 5432
-    superuser: postgres
-    superuserPassword: postgres
-
-  database:
-    name: backend-1
+    credentialsSecret: postgres-credentials
