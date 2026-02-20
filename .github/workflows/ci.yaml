@@ -9,10 +9,11 @@ on:
 permissions:
   contents: read
   packages: write
+  pull-requests: write
 
 jobs:
   build-and-push:
-    uses: amine7536/akpe-workflows/.github/workflows/build-and-push.yml@main
+    uses: amine7536/akpe-workflows/.github/workflows/build-and-push.yml@feat/improve-deploy-preview-feedback
     with:
       image_name: ${{ github.repository }}
     secrets: inherit
@@ -20,7 +21,7 @@ jobs:
   deploy-preview:
     if: github.event_name == 'pull_request'
     needs: build-and-push
-    uses: amine7536/akpe-workflows/.github/workflows/deploy-preview.yml@main
+    uses: amine7536/akpe-workflows/.github/workflows/deploy-preview.yml@feat/improve-deploy-preview-feedback
     with:
       service_name: backend-1
     secrets: inherit
